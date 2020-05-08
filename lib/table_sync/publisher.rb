@@ -32,11 +32,10 @@ class TableSync::Publisher < TableSync::BasePublisher
   def publish_now
     # Update request and object does not exist -> skip publishing
     return if !object && !destroyed?
-
     Rabbit.publish(params)
-    model_naming = TableSync.orm.model_naming(object_class)
-    TableSync::Instrument.notify table: model_naming.table, schema: model_naming.schema,
-                                 event: event, direction: :publish
+
+    notify
+    track
   end
 
   private
@@ -44,6 +43,23 @@ class TableSync::Publisher < TableSync::BasePublisher
   attr_reader :original_attributes
   attr_reader :state
   attr_reader :debounce_time
+
+  def notify!
+    TableSync::Instrument.notify(
+      table: model_naming.table,
+      schema: model_naming.schema,
+      event: event,
+      direction: :publish
+    )
+  end
+
+  def model_naming
+    TableSync.orm.model_naming(object_class)
+  end
+
+  def track
+    TableSync::Plugins::MessageGroups::Publishing.new(params).call
+  end
 
   def attrs_for_callables
     original_attributes
