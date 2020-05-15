@@ -24,10 +24,14 @@ module TableSync::ORMAdapter
       debounce_time = opts.delete(:debounce_time)
 
       klass.instance_exec do
-        { create: :created, update: :updated, destroy: :destroyed }.each do |event, state|
+        [:create, :update, :destroy].each do |event, state|
           after_commit(on: event, **opts) do
-            TableSync::Publisher.new(self.class.name, attributes,
-                                     state: state, debounce_time: debounce_time).publish
+            ::TableSync::Publisher::Job::Single.new(
+              model: self.class.name,
+              original_attributes: attributes,
+              event: event,
+              debounce_time: debounce_time,
+            ).enqueue
           end
         end
       end
