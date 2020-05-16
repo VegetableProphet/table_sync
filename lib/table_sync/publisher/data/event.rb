@@ -1,28 +1,23 @@
-if opts[:destroyed].nil?
-  @state = opts.fetch(:state, :updated).to_sym
-  validate_state
-else
-  # TODO Legacy job support, remove
-  @state = opts[:destroyed] ? :destroyed : :updated
-end
+# frozen_string_literal: true
 
+module TableSync::Publisher::Data
+  class Event
+    include Tainbox
 
-def event
-  destroyed? ? :destroy : :update
-end
+    VALID_TYPES = [:create, :update, :destroy].freeze
 
-def needle
-  original_attributes.slice(*primary_keys)
-end
+    attribute :type, Symbol
 
-def destroyed?
-  state == :destroyed
-end
+    def valid?
+      raise "Unknown state: #{type}" unless VALID_TYPES.include?(type)
+    end
 
-def created?
-  state == :created
-end
+    def create?
+      type == :create
+    end
 
-def validate_state
-  raise "Unknown state: #{state.inspect}" unless %i[created updated destroyed].include?(state)
+    def destroy?
+      type == :destroy
+    end
+  end
 end

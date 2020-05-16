@@ -11,7 +11,9 @@ module TableSync::Publisher::Data
              to: :object
 
     memoize def object
-      ::TableSync::Publisher::Data::Object.new(object_class, original_attributes, destroyed)
+      ::TableSync::Publisher::Data::Object.new(
+        model: model, attrs: original_attributes, event: event
+      )
     end
 
     def publishing_data

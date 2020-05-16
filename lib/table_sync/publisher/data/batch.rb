@@ -10,7 +10,7 @@ module TableSync::Publisher::Data
 
     def objects
       original_attributes.map do |attrs|
-        ::TableSync::Publisher::Data::Object.new(object_class, attrs, destroyed)
+        ::TableSync::Publisher::Data::Object.new(model: model, attrs: attrs, event: event)
       end
     end
 
@@ -27,7 +27,7 @@ module TableSync::Publisher::Data
     end
 
     def attributes_for_sync
-      push original_attributes ? attrs : objects.map(&:attributes_for_sync)
+      push_original_attributes ? original_attributes : objects.map(&:attributes_for_sync)
     end
 
     # all objects must exist if insert or update event

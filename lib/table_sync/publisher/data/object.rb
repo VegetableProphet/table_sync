@@ -5,18 +5,18 @@ module TableSync::Publisher::Data
     include Memery
     include Tainbox
 
-    attribute :object_class
+    attribute :model
     attribute :attrs
-    attribute :destroy
+    attribute :event
 
     memoize def object
-      TableSync.orm.find(object_class, needle)
+      TableSync.orm.find(model, needle)
     end
 
     # Attributes For Sync
 
     def attributes_for_sync
-      destroy ? destroy_attributes : upsert_attributes
+      event.destroy? ? destroy_attributes : upsert_attributes
     end
 
     def upsert_attributes

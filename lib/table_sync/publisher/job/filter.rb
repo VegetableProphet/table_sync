@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module TableSync::Publisher::Data::Filter
+module TableSync::Publisher::Job::Filter
   module_function
 
   SAFE_JSON_TYPES = [

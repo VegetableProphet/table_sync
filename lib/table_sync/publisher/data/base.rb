@@ -5,10 +5,10 @@ module TableSync::Publisher::Data
     include Memery
     include Tainbox
 
-    attribute :object_class
+    attribute :model
     attribute :original_attributes
-    attribute :confirm, default: true
-    attribute :state
+    attribute :confirm
+    attribute :event
 
     def call
       params.compact
@@ -31,24 +31,16 @@ module TableSync::Publisher::Data
     def publishing_data
       {
         model: model,
-        attributes: safe_attributes,
-        version: epoch_current_time,
+        attributes: attributes_for_sync,
+        version: current_epoch_time,
         event: event.type,
       }
-    end
-
-    def event
-      TableSync::Publisher::Data::Event.new(state)
-    end
-
-    def safe_attributes
-      ::TableSync::Publisher::Data::Filter.filter_for_serialization(attributes_for_sync)
     end
 
     # Routing Key
 
     def resolve_routing_key
-      routing_key_callable.call(object_class.name, attrs_for_routing_key)
+      routing_key_callable.call(model_name, attrs_for_routing_key)
     end
 
     def routing_key_callable
@@ -63,7 +55,7 @@ module TableSync::Publisher::Data
     # Metadata
 
     def resolve_metadata
-      TableSync.routing_metadata_callable&.call(object_class.name, attrs_for_metadata)
+      TableSync.routing_metadata_callable&.call(model_name, attrs_for_metadata)
     end
 
     def resolve_headers
@@ -76,12 +68,12 @@ module TableSync::Publisher::Data
 
     # Misc
 
-    memoize def epoch_current_time
+    memoize def current_epoch_time
       Time.current.to_f
     end
 
-    def model_name
-      object_class.try(:table_sync_model_name) || object_class.name,
+    memoize def model_name
+      model.try(:table_sync_model_name) || model.name,
     end
 
     def attributes_for_sync
@@ -94,10 +86,6 @@ module TableSync::Publisher::Data
 
     def exchange_name
       TableSync.exchange_name
-    end
-
-    def event_type
-      event.type
     end
   end
 end

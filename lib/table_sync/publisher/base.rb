@@ -15,6 +15,7 @@ class TableSync::Publisher::Base
 
     self.model               = model.constantize
     self.original_attributes = symbolyzed_original_attributes
+    self.event               = ::TableSync::Publisher::Data::Event.new(type: event)
   end
 
   def call
@@ -49,7 +50,7 @@ class TableSync::Publisher::Base
   def notify_params
     {
       model: model,
-      event: event,
+      event: event.type,
     }
   end
 
@@ -61,6 +62,10 @@ class TableSync::Publisher::Base
   end
 
   def publish?
+    event.valid? && valid_data?
+  end
+
+  def valid_data?
     data.valid?
   end
 end

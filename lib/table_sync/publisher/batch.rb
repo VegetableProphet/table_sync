@@ -11,7 +11,7 @@ class TableSync::Publisher::Batch < TableSync::Publisher::Base
     super.merge(count: original_attributes.size)
   end
 
-  def publish?
+  def valid_data?
     (push_original_attributes? && original_attributes.present?) || super
   end
 end

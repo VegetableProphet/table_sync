@@ -2,57 +2,50 @@
 
 class TableSync::Publisher::Job::Single
   include Tainbox
+  include Memery
 
-  DEBOUNCE_TIME = 60
+  DEFAULT_JOB = ::TableSync::Publisher::Job::Default::Single
 
-  attribute :object_class
+  attribute :model
   attribute :original_attributes
   attribute :confirm
-  attribute :state
+  attribute :event
   attribute :debounce_time
 
   def enqueue
-    return unless enqueue?
+    enqueue_job unless time.before_sync_time?
+  end
 
-    next_sync_time <= current_time ? enqueue_job : enqueue_job(next_sync_time)
+  private
+
+  def enqueue_job
+    job_class.set(wait_until: time.perform_at).perform_later(job_params)
+    time.cache_perform_at_time
+  end
+
+  def job_params
+    {
+      model: model.name,
+      original_attributes: safe_attributes,
+      event: event,
+      confirm: confirm,
+    }
+  end
+
+  memoize def time
+    ::TableSync::Publisher::Job::Time.new(
+      model: model,
+      original_attributes: original_attributes,
+      event: event,
+      debounce_time: debounce_time,
+    )
+  end
+
+  def safe_attributes
+    ::TableSync::Publisher::Job::Filter.strip_of_unserializable_values(original_attributes)
   end
 
   def job_class
-    return TableSync.publishing_job_class_callable.call if TableSync.publishing_job_class_callable
-    raise "Can't publish, set TableSync.publishing_job_class_callable"
-  end
-
-  def debounce_time
-    super.seconds
-  end
-
-  def enqueue_job(perform_at = current_time)
-    job = job_class.set(wait_until: perform_at)
-    job.perform_later(object_class.name, original_attributes, state: state.to_s, confirm: confirm?)
-    Rails.cache.write(cache_key, perform_at)
-  end
-
-  def enqueue?
-    # return enqueue_job if destroyed? || debounce_time.zero?
-    return if sync_time > current_time
-  end
-
-  def lock_with_sync_time!
-    Rails.cache.write(data.cache_key, perform_at)
-  end
-
-  def cached_sync_time
-    Rails.cache.read(cache_key)
-  end
-
-  memoize def current_time
-  end
-
-  memoize def sync_time
-    cached_sync_time || current_time - debounce_time - 1.second
-  end
-
-  def next_sync_time
-    sync_time + debounce_time
+    ::TableSync.publishing_job_class || DEFAULT_JOB
   end
 end
