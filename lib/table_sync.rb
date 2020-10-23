@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "securerandom"
 require "memery"
 require "rabbit_messaging"
 require "rabbit/event_handler" # NOTE: from rabbit_messaging"
@@ -28,6 +29,7 @@ module TableSync
   require_relative "table_sync/instrument_adapter/active_support"
   require_relative "table_sync/naming_resolver/active_record"
   require_relative "table_sync/naming_resolver/sequel"
+  require_relative "table_sync/plugins/tracker"
 
   # @api public
   # @since 2.2.0
