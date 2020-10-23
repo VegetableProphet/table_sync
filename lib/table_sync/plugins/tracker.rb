@@ -54,6 +54,10 @@ module TableSync::Plugins::Tracker::Publisher
   def track!
     TableSync::Plugins::Tracker::Message.new(params).published.track!
   end
+
+  def kek
+    puts "kek!"
+  end
 end
 
 # подумать!
@@ -81,7 +85,7 @@ module TableSync::Plugins::Tracker::Worker
   end
 end
 
-TableSync::BatchPublusher  .prepend(TableSync::Plugins::Tracker::Publusher)
-TableSync::Publusher       .prepend(TableSync::Plugins::Tracker::Publusher)
+TableSync::BatchPublisher  .prepend(TableSync::Plugins::Tracker::Publisher)
+TableSync::Publisher       .prepend(TableSync::Plugins::Tracker::Publisher)
 TableSync::ReceivingHandler.prepend(TableSync::Plugins::Tracker::ReceivingHandler)
 Rabbit::Receiving::Worker  .include(TableSync::Plugins::Tracker::Worker)
