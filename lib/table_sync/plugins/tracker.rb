@@ -87,5 +87,4 @@ end
 
 TableSync::BatchPublisher  .prepend(TableSync::Plugins::Tracker::Publisher)
 TableSync::Publisher       .prepend(TableSync::Plugins::Tracker::Publisher)
-TableSync::ReceivingHandler.prepend(TableSync::Plugins::Tracker::ReceivingHandler)
 Rabbit::Receiving::Worker  .include(TableSync::Plugins::Tracker::Worker)
