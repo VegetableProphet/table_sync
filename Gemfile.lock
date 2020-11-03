@@ -1,3 +1,16 @@
+GIT
+  remote: https://github.com/VegetableProphet/rabbit_messaging.git
+  revision: 0b62682a19793acb87dcd4d3ea7e6c9983bbd34a
+  branch: expand_message_info
+  specs:
+    rabbit_messaging (0.8.0)
+      bunny (~> 2.0)
+      exception_notification
+      lamian
+      rails (>= 5.2)
+      sneakers (~> 2.0)
+      tainbox
+
 PATH
   remote: .
   specs:
@@ -119,13 +132,6 @@ GEM
     pry (0.13.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    rabbit_messaging (0.7.1)
-      bunny (~> 2.0)
-      exception_notification
-      lamian
-      rails
-      sneakers (~> 2.0)
-      tainbox
     rack (2.2.3)
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
@@ -250,6 +256,7 @@ DEPENDENCIES
   coveralls (~> 0.8)
   pg (~> 0.18)
   pry
+  rabbit_messaging!
   rake
   rspec (~> 3.8)
   rubocop-config-umbrellio

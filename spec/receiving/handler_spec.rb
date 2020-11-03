@@ -20,6 +20,7 @@ describe TableSync::Receiving::Handler do
         version: 123.34534,
       },
       project_id: "pid",
+      arguments: { routing_key: "users" },
     )
   end
   let(:user_id)      { 33 }
@@ -33,6 +34,7 @@ describe TableSync::Receiving::Handler do
         attributes: { id: user_id },
       },
       project_id: "pid",
+      arguments: { routing_key: "users" },
     )
   end
 
@@ -59,6 +61,7 @@ describe TableSync::Receiving::Handler do
       ])
       expect(handler.version).to eq(123.34534)
       expect(handler.project_id).to eq("pid")
+      expect(handler.message_info).to eq({ routing_key: "users" })
     end
   end
 
